@@ -1,0 +1,206 @@
+﻿@model MyTestWebApp.Models.EmployeeViewModel
+@{
+    ViewBag.Title = "Create Or Edit";
+}
+
+<h2 id="hdrEmployee">Create Employee</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        <div class="form-group">
+            <div class="col-md-2">
+                <label>Employee Name</label>
+            </div>
+            <div class="col-md-10">
+                <input type="hidden" id="hdnEmployeeId" value="@Model.EmployeeId" />
+                @*<input type="hidden" id="hdnSelectedDeprts" value="@Model.DepartmentIds;" />*@
+                <input type="text" class="form-control" id="txtEmployeeName" placeholder="Employee Name" value="@Model.EmployeeName" />
+                <span id="spnNameDanger" style="display:none;" class="text-danger">Employee Name is Required</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                <label>Gender</label>
+            </div>
+            <div class="col-md-10">
+                <label>@Html.RadioButtonFor(model => model.Gender, "Male") Male</label>
+                <label>@Html.RadioButtonFor(model => model.Gender, "Female") Female</label>
+                <span id="spnGenderDanger" style="display:none;" class="text-danger">Gender is Required</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                <label>Mobile Number</label>
+            </div>
+            <div class="col-md-10">
+                <input type="text" class="form-control" minlength="10" maxlength="10" id="txtMobileNumber" placeholder="Mobile Number" value="@Model.MobileNumber" />
+                <span id="spnMobileDanger" style="display:none;" class="text-danger">Mobile Number is Required</span>
+                <span id="spnMobileValidDanger" style="display:none;" class="text-danger">Please put 10 digit mobile number</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                <label>Departments</label>
+            </div>
+            @*<div class="col-md-10">
+                <select id="myDepartment" multiple="multiple" required name="myDepartment" class="listbox">
+                    @if (ViewBag.departmentsData != null)
+                    {
+                        foreach (var item in ViewBag.departmentsData)
+                        {
+                            if (item.Text != null)
+                            {
+                                <option value="@item.Value">
+                                    @item.Text
+                                </option>
+
+                            }
+                        }
+                    }
+                </select>
+                <span id="spnDeptDanger" style="display:none;" class="text-danger">Please select department</span>
+            </div>*@
+        <div class="col-md-10">
+            @Html.ListBoxFor(model => model.DepartmentIds, Model.Departments, new { @class = "listbox" })
+            <span id="spnDeptDanger" style="display:none;" class="text-danger">Please select department</span>
+        </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                <div class="main">
+                    <input type="hidden" value="@Model.ProfileImage" id="hdnOldImagePath" />
+                    <img src="@Model.ProfileImage" class="profile_pic" width="100" height="100" />
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="profile-avatar">
+                    <input class="file-upload" name="img" id="imgUploader" type="file" accept="image/*" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" value="Create" id="btnCreateEdit" onclick="createEditEmployee()" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+@section scripts{
+    @*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+    @*<script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>*@
+    @*<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>*@
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('.listbox').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var readURL = function (input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(".profile_pic").attr("src", e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            };
+
+            $(".file-upload").on("change", function () {
+                readURL(this);
+            });
+            if ($("#hdnEmployeeId").val() == "0") {
+                $("#btnCreateEdit").prop('value', 'Create');
+                $("#hdrEmployee").text("Create Employee");
+            }
+            else {
+                $("#btnCreateEdit").prop('value', 'Update');
+                $("#hdrEmployee").text("Update Employee");
+            }
+        });
+        function createEditEmployee() {
+            var employeeId = $("#hdnEmployeeId").val();
+            var employeeName = $("#txtEmployeeName").val();
+            var mobileNumber = $("#txtMobileNumber").val();
+            var gender = $('input[name="Gender"]:checked').val();
+            var departmentIds = $("#DepartmentIds").val();
+            var oldFilePath = $("#hdnOldImagePath").val();
+            if (employeeName == "" || employeeName == undefined || employeeName == null) {
+                $("#spnNameDanger").show();
+                return false;
+            }
+            else {
+                $("#spnNameDanger").hide();
+            }
+            if (gender == "" || gender == undefined || gender == null) {
+                $("#spnGenderDanger").show();
+                return false;
+            }
+            else {
+                $("#spnGenderDanger").hide();
+            }
+            if (mobileNumber == "" || mobileNumber == undefined || mobileNumber == null) {
+                $("#spnMobileDanger").show();
+                $("#spnMobileValidDanger").hide();
+                return false;
+            }
+            else {
+                $("#spnMobileDanger").hide();
+            }
+            if (!$('#txtMobileNumber').val().match('[0-9]{10}')) {
+                $("#spnMobileValidDanger").show();
+                return;
+            }
+            else {
+                $("#spnMobileValidDanger").hide();
+            }
+            if (departmentIds == "" || departmentIds == undefined || departmentIds == null) {
+                $("#spnDeptDanger").show();
+                return false;
+            }
+            else {
+                $("#spnDeptDanger").hide();
+            }
+            var formData = new FormData();
+            var fileUpload = $("#imgUploader").get(0);
+            if (fileUpload != undefined) {
+                var files = fileUpload.files[0];
+                formData.append("file", files);
+            }
+            formData.append("oldFilePath", oldFilePath);
+            formData.append("employeeName", employeeName);
+            formData.append("mobileNumber", mobileNumber);
+            formData.append("gender", gender);
+            formData.append("departmentIds", departmentIds);
+            formData.append("employeeId", employeeId);
+            $.ajax({
+                type: "POST",
+                url: '/Employee/CreateOrEdit',
+                data: formData,
+                contentType: false,  // Not to set any content header
+                processData: false, // Not to process data
+                success: function (response) {
+                    if (response == "Success") {
+                        window.location.href = '/Employee/Index';
+                    }
+                    else {
+                        alert(response);
+                    }
+                }
+            });
+        }
+    </script>
+}
